@@ -1,11 +1,17 @@
 package patientrecord.service;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import audit.AuditEvent;
@@ -16,26 +22,40 @@ public class AuditService {
 	@Autowired
 	KafkaTemplate<String, AuditEvent> kafkaTemplate;
 
-	public String postAuditEvent() {
+	private static final Logger logger = LogManager.getLogger(AuditService.class);
+
+	@Value("${pr.audit-message-broker-name}")
+	private String auditMessageBrokerName;
+
+	@Value("${pr.microservice-name}")
+	private String MICROSERVICE;
+
+	private final String FORMATTER = "yyyyMMdd HH:mm:ss";
+
+	private String userName;
+
+	public String postAuditEvent(String event) {
 
 		String eventId = UUID.randomUUID().toString();
 
-		AuditEvent auditEvent = new AuditEvent(eventId, "user-manas", "dateandtime-20240617", "service-patientrecord",
-				"event-create record");
-		
-		
+		userName = SecurityContextHolder.getContext().getAuthentication().getName();
+
+		DateTimeFormatter dtf = DateTimeFormatter.ofPattern(FORMATTER);
+		LocalDateTime now = LocalDateTime.now();
+		AuditEvent auditEvent = new AuditEvent(eventId, userName, now.format(dtf), MICROSERVICE, event);
+
 		CompletableFuture<SendResult<String, AuditEvent>> future = kafkaTemplate
-				.send("audit-created-event", eventId, auditEvent).completable();
+				.send(auditMessageBrokerName, eventId, auditEvent).completable();
 
 		future.whenComplete((result, exception) -> {
 			if (exception != null) {
-				System.out.println("exception " + exception.getMessage());
+				logger.info("Error sending message to broker " + exception.getMessage());
 			} else {
-				System.out.println("Message sent sucessfully to message broker- Compelte");
+				logger.info("Message process and sent to broker");
 			}
 		});
-		
-		System.out.println("Audit event sent compelted -Mans");
+
+		logger.info("Audit event sent to message queue {} at {}", auditMessageBrokerName, LocalDateTime.now());
 
 		return "success";
 

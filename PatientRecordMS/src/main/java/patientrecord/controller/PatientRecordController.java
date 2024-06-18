@@ -34,42 +34,50 @@ public class PatientRecordController {
 
 	@GetMapping("/getPatientRecord/{patientId}")
 	public PatientRecord getPatientRecord(@PathVariable String patientId) {
-		// logger.info("Fetching patient record for ID {}", patientId);
-		auditService.postAuditEvent();
+		logger.info("Fetching patient record for ID {}", patientId);
+		auditService.postAuditEvent(OPERATION.GETPATIENTRECORDBYID.toString());
 		return patientRecordService.fetchRecord(patientId);
 	}
 
 	@GetMapping("/getPatientRecords")
 	public List<PatientRecord> getPatientRecords() {
 		logger.info("Fetching all patient record");
-		auditService.postAuditEvent();
+		auditService.postAuditEvent(OPERATION.GETALLPATIENTRECORDS.toString());
 		return patientRecordService.fetchRecords();
 	}
 
 	@PostMapping("/createPatientRecord")
 	public ResponseEntity<String> createPatientRecord(@RequestBody PatientRecord newRecord) {
 		logger.info("createPatientRecord{}", newRecord);
-		auditService.postAuditEvent();
+		auditService.postAuditEvent(OPERATION.CREATEPATIENTRECORD.toString());
 		patientRecordService.createRecord(newRecord);
 		return ResponseEntity.ok().body(newRecord.toString());
 	}
 
 	@PostMapping("/updatePatientRecord/{id}")
 	public PatientRecord updatePatientRecord(@PathVariable Long id, @RequestBody PatientRecord updatedRecord) {
-		auditService.postAuditEvent();
+		auditService.postAuditEvent(OPERATION.UPDATEPATIENTRECORD.toString());
 		return patientRecordService.updateRecord(id, updatedRecord);
 	}
 
 	@DeleteMapping("/deletePatientRecord/{id}")
 	public String deletePatientRecord(@PathVariable Long id) {
-		auditService.postAuditEvent();
+		auditService.postAuditEvent(OPERATION.DELETEPATIENTRECORD.toString());
 		patientRecordService.deleteRecord(id);
 		return "Record deleted successfully";
 	}
 
-	@GetMapping("/property")
-	public String getPropertyName() {
-		return this.propertyName;
-	}
+	
 
 }
+
+
+enum OPERATION {
+	  GETPATIENTRECORDBYID,
+	  GETALLPATIENTRECORDS,
+	  CREATEPATIENTRECORD,
+	  UPDATEPATIENTRECORD,
+	  DELETEPATIENTRECORD
+	 
+	}
+

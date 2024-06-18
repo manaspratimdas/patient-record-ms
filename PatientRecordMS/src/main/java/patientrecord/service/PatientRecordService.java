@@ -2,6 +2,8 @@ package patientrecord.service;
 
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -19,11 +21,17 @@ public class PatientRecordService {
 	
 	@Autowired
 	PostPatientRecordService postPatientRecordService;
+	
+	private final String DOWN="down";
+	private final Long ZERO=0L;
+	
+	private static final Logger logger = LogManager.getLogger(PatientRecordService.class);
 
 	@Cacheable("patientRecord")
 	@CircuitBreaker(name = "fetchRecord", fallbackMethod = "fallbackForFetchRecord")
 	public PatientRecord fetchRecord(String patientId) {
 
+		logger.info(" fetching record for Record{}",patientId );
 		// Try block is added to illustrate caching
 		try {
 			Thread.sleep(120);
@@ -34,7 +42,7 @@ public class PatientRecordService {
 		PatientRecord record = patientRecordRepository.findByPatientId(patientId);
 		
 		// Try block is added to illustrate caching
-		System.out.println("fetching from DB");
+		
 		if (record == null) {
 			throw new RecordNotFoundException("No patient record found with ID: " + patientId);
 		}
@@ -45,11 +53,12 @@ public class PatientRecordService {
 	
 	
 	public PatientRecord fallbackForFetchRecord(String patientId, RecordNotFoundException ex) {
+		logger.info(" fetching record from fallback methods for Record{}",patientId );
 		PatientRecord patientRecord=new PatientRecord();
-		patientRecord.setPatientId("down");
-		patientRecord.setId(0L);
-		patientRecord.setHealthRecords("down");
-		patientRecord.setTreatmentHistories("down");
+		patientRecord.setPatientId(DOWN);
+		patientRecord.setId(ZERO);
+		patientRecord.setHealthRecords(DOWN);
+		patientRecord.setTreatmentHistories(DOWN);
 		return patientRecord;
         
     }
@@ -57,6 +66,7 @@ public class PatientRecordService {
 	
 	
 	public PatientRecord createRecord(PatientRecord newRecord) {
+		logger.info("Creating for {} ",newRecord );
 		System.out.println("in createRecord");
 		patientRecordRepository.save(newRecord);
 		postPatientRecordService.postRecord(newRecord);
@@ -66,6 +76,7 @@ public class PatientRecordService {
 	
 	
 	public PatientRecord updateRecord(Long id, PatientRecord updatedRecord) {
+		logger.info("Updating record for {} ",id );
 		if (!patientRecordRepository.existsById(id)) {
 			throw new RecordNotFoundException("No record exists for given id");
 		}
@@ -78,14 +89,19 @@ public class PatientRecordService {
 	}
 
 	public void deleteRecord(Long id) {
+		logger.info("Deleting record for {} ",id );
 		if (!patientRecordRepository.existsById(id)) {
 			throw new RecordNotFoundException("No record exists for given id");
 		}
 		patientRecordRepository.deleteById(id);
 	}
 
-	public List<PatientRecord> fetchRecords() {
+	
 
+	public List<PatientRecord> fetchRecords() {
+		logger.info(" Fethcing all records");
 		return patientRecordRepository.findAll();
 	}
+	
+
 }

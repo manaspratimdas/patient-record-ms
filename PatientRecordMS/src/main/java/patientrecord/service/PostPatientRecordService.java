@@ -1,9 +1,13 @@
 package patientrecord.service;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
@@ -17,6 +21,11 @@ public class PostPatientRecordService {
 	@Autowired
 	KafkaTemplate<String, PatientRecordEvent> kafkaTemplate;
 
+	@Value("${pr.message-broker-name}")
+	private String messageBrokerName;
+
+	private static final Logger logger = LogManager.getLogger(PostPatientRecordService.class);
+
 	public String postRecord(PatientRecord record) {
 
 		String eventId = UUID.randomUUID().toString();
@@ -24,25 +33,20 @@ public class PostPatientRecordService {
 		PatientRecordEvent patientRecordEvent = new PatientRecordEvent(eventId, record.getPatientId(),
 				record.getHealthRecords(), record.getTreatmentHistories(), record.getDoctor());
 
-		System.out.println("patientRecordEvent   " + patientRecordEvent);
-
-		// kafkaTemplate.send("patient-record-upsert-event",eventId,patientRecordEvent);
-		
-		
+		logger.info("patientRecordEvent {}  ", patientRecordEvent);
 
 		CompletableFuture<SendResult<String, PatientRecordEvent>> future = kafkaTemplate
-				.send("patient-record-upsert-event", eventId, patientRecordEvent).completable();
+				.send(messageBrokerName, eventId, patientRecordEvent).completable();
 
 		future.whenComplete((result, exception) -> {
 			if (exception != null) {
-				System.out.println("exception " + exception.getMessage());
+				logger.info("Error sending message to broker " + exception.getMessage());
 			} else {
-				System.out.println("Message sent sucessfully to message broker- Compelte");
+				logger.info("Message process and sent to broker");
 			}
 		});
-		
-		System.out.println("Processing compelted -Mans");
 
+		logger.info("Patient record sent to message queue {} at {}", messageBrokerName, LocalDateTime.now());
 		return "success";
 
 	}

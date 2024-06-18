@@ -27,6 +27,22 @@ public class PatientRecord {
 	
 	@Column(name = "doctor")
 	private String doctor;
+	
+	
+
+	public PatientRecord() {
+	
+		
+	}
+
+	public PatientRecord(Long id, String patientId, String healthRecords, String treatmentHistories, String doctor) {
+	
+		this.id = id;
+		this.patientId = patientId;
+		this.healthRecords = healthRecords;
+		this.treatmentHistories = treatmentHistories;
+		this.doctor = doctor;
+	}
 
 	public Long getId() {
 		return id;
