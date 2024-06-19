@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -33,12 +34,20 @@ public class AuditService {
 	private final String FORMATTER = "yyyyMMdd HH:mm:ss";
 
 	private String userName;
+	
+	Authentication auth;
 
 	public String postAuditEvent(String event) {
 
 		String eventId = UUID.randomUUID().toString();
 
-		userName = SecurityContextHolder.getContext().getAuthentication().getName();
+	
+		auth = SecurityContextHolder.getContext().getAuthentication();
+	    if(auth != null){
+	        userName = auth.getName();
+	    } else {
+	        userName = "defaultUser"; // set a default value or handle this case as per your requirement
+	    }
 
 		DateTimeFormatter dtf = DateTimeFormatter.ofPattern(FORMATTER);
 		LocalDateTime now = LocalDateTime.now();
