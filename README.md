@@ -1,4 +1,4 @@
-#Patient Record Management System
+**Patient Record Management System**
 
 The core module of Electronic Health Record (EHR) Microservice to manage the patient record. Manages patient health records and treatment histories. 
 
