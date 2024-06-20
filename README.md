@@ -54,5 +54,16 @@
 
 7. Finally, I need assistance in crafting Postman requests to invoke the controller methods for getPatientRecord, createPatientRecord, updatePatientRecord, and deletePatientRecord. The Postman setup should also be configured for the various roles. Please provide a step by step guide for this.
 
+8. As a Java developer utilizing Java 11 and the spring-cloud-starter-gateway for creating an API gateway for a microservice system, I seek to implement simple Rate Limiting for the microservice. Please provide a detailed guide that includes:
+Any configuration files that need to be created or updated, considering I am using an application.properties file for configuration.
+Both server and client configuration details for rate limiting.
+The client application is using the following:
+groupId: org.springframework.boot
+artifactId: spring-boot-starter-parent
+version: 2.1.5.RELEASE
+Please organize this information in a step-by-step format for ease of implementation.
+
+   
+
  
 
