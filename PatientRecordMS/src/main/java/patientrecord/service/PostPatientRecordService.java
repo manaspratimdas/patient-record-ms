@@ -46,7 +46,7 @@ public class PostPatientRecordService {
 			}
 		});
 
-		logger.info("Patient record sent to message queue {} at {}", messageBrokerName, LocalDateTime.now());
+		//logger.info("Patient record sent to message queue {} at {}", messageBrokerName, LocalDateTime.now());
 		return "success";
 
 	}
