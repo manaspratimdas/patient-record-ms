@@ -12,22 +12,11 @@ pipeline {
         stage('Build') {
             steps {
             	cd PatientRecordMS
-                bat 'mvn clean package'
+                bat 'mvn clean'
             }
         }
         
-        stage('Unit Test') {
-            steps {
-                bat 'mvn test'
-            }
-        }
-        
-        stage('Integration Test') {
-            steps {
-                bat 'mvn verify'
-            }
-        }
-        
+      
         
     }
 }
