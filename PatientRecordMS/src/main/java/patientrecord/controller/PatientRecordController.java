@@ -34,6 +34,7 @@ public class PatientRecordController {
 
 	@GetMapping("/getPatientRecord/{patientId}")
 	public PatientRecord getPatientRecord(@PathVariable String patientId) {
+		logger.info("testing jenkin integration");
 		logger.info("Fetching patient record for ID {}", patientId);
 		auditService.postAuditEvent(OPERATION.GETPATIENTRECORDBYID.toString());
 		return patientRecordService.fetchRecord(patientId);
