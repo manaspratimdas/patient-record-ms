@@ -11,6 +11,7 @@ pipeline {
         
         stage('Build') {
             steps {
+            	cd PatientRecordMS
                 bat 'mvn clean package'
             }
         }
