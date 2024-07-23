@@ -9,13 +9,15 @@ pipeline {
             }
         }
         
-        stage('Build') {
+                stage('Build') {
             steps {
-            	cd PatientRecordMS
-                bat 'mvn clean'
+                script {
+                    dir('PatientRecordMS') {
+                        bat 'mvn clean'
+                    }
+                }
             }
         }
-        
       
         
     }
